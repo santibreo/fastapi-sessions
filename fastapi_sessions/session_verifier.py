@@ -34,7 +34,7 @@ class SessionVerifier(Generic[ID, SessionModel]):
         raise NotImplementedError()
 
     @abstractmethod
-    def verify_session(self, model: SessionModel) -> bool:
+    async def verify_session(self, model: SessionModel) -> bool:
         raise NotImplementedError()
 
     async def __call__(self, request: Request):
@@ -58,7 +58,7 @@ class SessionVerifier(Generic[ID, SessionModel]):
             return
 
         session_data = await self.backend.read(session_id)
-        if not session_data or not self.verify_session(session_data):
+        if not session_data or not (await self.verify_session(session_data)):
             if self.auto_error:
                 raise self.auth_http_exception
             return
